@@ -25,78 +25,32 @@ public class RatingService {
 
     }
 
-    public Integer setRating(Integer rating, Integer userId1, Integer filmId1, Integer ratingId) {
+    public Integer setRating(Integer rating, Integer userId, Integer filmId, Integer ratingId) {
 
-
-        Integer filmId = filmId1;
-
-        Integer userId = userId1;
         RatingModel ratingModel = ratingRepository.findRatingModelByFilmIdAndUserId(filmId, userId);
-        RatingModel newRatingModel = new RatingModel();
-        //  if (ratingModel != null) {
-        if (ratingModel == null) {
-            //null op
-        } else {
-            if (rating > 5) {
-                newRatingModel.setFilmId(filmId);
-            } else {
-                if (rating < 0) {
-                    newRatingModel.setUserId(userId);
-                } else {
-                    if (userId == null) {
-                        newRatingModel.setRating(rating);
-                    } else {
-                        if (rating == 0) {
-                            newRatingModel.setRatingId(ratingId);
-                            newRatingModel.setFilmId(filmId);
-                            newRatingModel.setUserId(userId);
-                            newRatingModel.setRating(rating);
-                            ratingRepository.save(newRatingModel);
-                            return 0;
-                        } else if (rating == 1)
-                        {  newRatingModel.setRatingId(ratingId);
-                            newRatingModel.setFilmId(filmId);
-                            newRatingModel.setUserId(userId);
-                            newRatingModel.setRating(rating);
-                            ratingRepository.save(newRatingModel);
-                            return 1;}
-                        else if (rating == 2)
-                        {   newRatingModel.setRatingId(ratingId);
-                            newRatingModel.setFilmId(filmId);
-                            newRatingModel.setUserId(userId);
-                            newRatingModel.setRating(rating);
-                            ratingRepository.save(newRatingModel);
-                            return 2;}
-                        else if (rating == 3)
-                        {  newRatingModel.setRatingId(ratingId);
-                            newRatingModel.setFilmId(filmId);
-                            newRatingModel.setUserId(userId);
-                            newRatingModel.setRating(rating);
-                            ratingRepository.save(newRatingModel);
-                            return 3;}
-                        else if (rating == 4)
-                        {
-                            newRatingModel.setRatingId(ratingId);
-                            newRatingModel.setFilmId(filmId);
-                            newRatingModel.setUserId(userId);
-                            newRatingModel.setRating(rating);
-                            ratingRepository.save(newRatingModel);
-                            return 4;}
-                        else if (rating == 5)
-                        {
-                            newRatingModel.setRatingId(ratingId);
-                            newRatingModel.setFilmId(filmId);
-                            newRatingModel.setUserId(userId);
-                            newRatingModel.setRating(rating);
-                            ratingRepository.save(newRatingModel);
-                            return 5;}
-                    }
-                }
-                return -1;
-            }
 
+        if(!isRatingCorrect(rating, userId, ratingModel))
             return -1;
 
-        } return -1;
+        saveRatingModel(rating,userId,filmId, ratingId);
+        return rating;
+    }
+
+    public void saveRatingModel(Integer rating, Integer userId, Integer filmId, Integer ratingId){
+
+        RatingModel updatedRatingModel = new RatingModel();
+        updatedRatingModel.setRatingId(ratingId);
+        updatedRatingModel.setFilmId(filmId);
+        updatedRatingModel.setUserId(userId);
+        updatedRatingModel.setRating(rating);
+        ratingRepository.save(updatedRatingModel);
+    }
+
+    public boolean isRatingCorrect(Integer rating, Integer userId, RatingModel ratingModel){
+
+        if(ratingModel == null || userId == null || rating > 5 || rating < 0)
+            return false;
+
+        return true;
     }
 }
