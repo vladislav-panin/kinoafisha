@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class CommentsShortDto {
 
-    String message; // отзыв
+    String message;
 
-    String name; // имя
+    String name;
 }
