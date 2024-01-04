@@ -124,32 +124,8 @@ public class UsersController {
     @PostMapping("/updateProfile")
     public String updateProfile(@ModelAttribute UsersModel usersModel)
     {
-        System.out.println("update_profile request: " + usersModel);
-        UsersModel userModelFromDb = usersRepository.findUsersModelByAuthentificated(1);
-        String userFromDbLogin = userModelFromDb.getLogin();
-        String userFromDbPreferences = userModelFromDb.getPreferences();
-        String userFromDbBirthDate = userModelFromDb.getBirthDate();
-
-        if(usersModel.getLogin()=="")
-        {
-            usersModel.setLogin(userFromDbLogin);
-        }
-        if(usersModel.getPreferences()=="")
-        {
-            usersModel.setPreferences(userFromDbPreferences);
-        }
-        if(usersModel.getBirthDate()=="")
-        {
-            usersModel.setBirthDate(userFromDbBirthDate);
-        }
-
-        userModelFromDb.setLogin(usersModel.getLogin());
-        userModelFromDb.setPreferences(usersModel.getPreferences());
-        userModelFromDb.setBirthDate(usersModel.getBirthDate());
-        usersRepository.save(userModelFromDb);
-
+        usersService.profileUpdate(usersModel);
         return "profile_update_success";
-
     }
 
 
