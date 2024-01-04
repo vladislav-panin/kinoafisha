@@ -11,38 +11,35 @@ import java.util.List;
 @Table(name = "films_table")
 @Data
 public class FilmModel {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer filmId;
 
-    String name; // название фильма
+    String name;
 
-    String description; // описание
+    String description;
 
-    int year; // год выхода
+    int year;
 
-    Date releaseDate; //полная дата выхода фильм
+    Date releaseDate;
 
-    String creator; //режиссер
+    String creator;
 
     String time; // время сколько идет фильм
 
-    String actors; //актеры
+    String actors;
 
-    String genre; // жанр
+    String genre;
 
     String image;
 
     @Nullable
-    Integer rating; // рейтинг
+    Integer rating;
 
     @Nullable
-    Integer myRating; // Наш рейтинг
+    Integer myRating;
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "filmId", referencedColumnName = "filmId")
     List<CommentsModel> comments;
-
-
 }
