@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class CommentsShortDto {
-
     String message;
 
     String name;
