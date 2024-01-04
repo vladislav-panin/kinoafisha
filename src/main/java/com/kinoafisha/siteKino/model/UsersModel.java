@@ -11,7 +11,6 @@ import java.util.List;
 @Data
 public class UsersModel {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer userId;
@@ -20,21 +19,14 @@ public class UsersModel {
 
     String password;
 
-    //String image - пока нет и мб не будет
-
     Integer authentificated;
 
-    ///////////////////////////////////Новые поля, нужные для юзер профиля
+    String preferences;
 
-    String preferences; // предпочтения
-
-    String birthDate; //дата рождения
-
+    String birthDate;
 
     @Nullable
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", referencedColumnName = "userId")
-    List<FilmModel> recomendedFilms; //лист рекомендаций
-
-
+    List<FilmModel> recomendedFilms;
 }
