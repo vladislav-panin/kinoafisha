@@ -180,62 +180,17 @@ public class UsersController {
     @PostMapping("/addComment")
     public String addCommentToFilm(@ModelAttribute CommentsModel commentsModel, Model model)
     {
-        System.out.println("comment request: " + commentsModel);
-        UsersModel authenticated = usersRepository.findUsersModelByAuthentificated(1);
-        String userName = authenticated.getLogin();
-        commentsModel.setName(userName);
-        commentsRepository.save(commentsModel);
+        UsersModel user = usersRepository.findUsersModelByAuthentificated(1);
+        model.addAttribute("comment", filmsService.addNewComment(commentsModel, user));
 
-        model.addAttribute("comment", commentsModel);
+        FilmModel filmModel = filmRepository.findFilmModelByName(commentsModel.getFilmName());
+        RatingModel ratingModel = ratingRepository.findRatingModelByFilmIdAndUserId(filmModel.getFilmId(), user.getUserId());
 
-        FilmFullDto filmFullDto = filmsService.findFilmByNameDto(commentsModel.getFilmName());
-
-        List<CommentsModel> commentsModelList = commentsRepository.findCommentsModelByFilmName(commentsModel.getFilmName());
-        if(commentsModelList.size()==0)
-        {
-            String admComment = "Комментариев к фильму пока нет, будьте первым, кто оставит комментарий";
-            model.addAttribute("admComment",admComment);
-        } else {
-            List<CommentsShortDto> commentsShortDtoList = new ArrayList<>();
-            for(CommentsModel one_comment: commentsModelList)
-            {
-                CommentsShortDto one_shortComment = commentsMapper.toCommentsShortDto(one_comment);
-                commentsShortDtoList.add(one_shortComment);
-            }
-
-            model.addAttribute("comments",commentsShortDtoList);
-
-        }
-
-        FilmModel filmModelForId = filmRepository.findFilmModelByName(commentsModel.getFilmName());
-        Integer filmId = filmModelForId.getFilmId();
-        List<RatingModel> ratingModelList = ratingRepository.findRatingModelsByFilmId(filmId);
-        Integer filmRating = 0;
-        Integer filmRatingSum = 0;
-        if(ratingModelList != null) {
-            for (RatingModel ratingModel : ratingModelList) {
-                filmRatingSum = filmRatingSum + ratingModel.getRating();
-
-            }
-            Integer ratingListSize = ratingModelList.size();
-            filmRating = filmRatingSum/ratingListSize;
-            filmFullDto.setRating(filmRating);
-
-            FilmModel filmModelForBd = filmRepository.findFilmModelByName(commentsModel.getFilmName());
-            filmModelForBd.setRating(filmRating);
-            filmRepository.save(filmModelForBd);
-        } else {
-            filmFullDto.setRating(0);
-        }
-
-        model.addAttribute("film", filmFullDto);
-
-        List<Integer> ratingScale = new ArrayList<>();
-        for(int i=0; i<6; i++)
-        {
-            ratingScale.add(i);
-        }
-        model.addAttribute("ratingScale", ratingScale);
+        formingModel(model,
+                formingCommentsShortDtoListForFilm(commentsModel.getFilmName()),
+                formingFilmFullDto(commentsModel.getFilmName()),
+                formingRatingScale(),
+                ratingModel.getRating());
 
         return "film_page";
     }

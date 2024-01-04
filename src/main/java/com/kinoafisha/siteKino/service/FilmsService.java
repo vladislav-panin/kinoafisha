@@ -61,25 +61,19 @@ public class FilmsService {
         return filmsShortDtos;
     }
 
-    public CommentsModel addNewComment(String message)
+    public CommentsModel addNewComment(CommentsModel commentsModel, UsersModel user)
     {
-        CommentsShortDto commentsShortDto = new CommentsShortDto();
-        UsersModel user = usersRepository.findUsersModelByAuthentificated(1);
-        if(user!=null)
+        if(user != null)
         {
-            String login = user.getLogin();
-            commentsShortDto.setMessage(message);
-            commentsShortDto.setName(login);
-            CommentsModel commentsModel = commentsMapper.toCommentsModel(commentsShortDto);
+            String userName = user.getLogin();
+            commentsModel.setName(userName);
             commentsRepository.save(commentsModel);
             return commentsModel;
-
         }
-        else{
-            System.out.println("не авторизован");
+        else {
+            System.out.println("вы не можете оставить комментарий, так как не авторизованы");
             return null;
         }
-
     }
 
 

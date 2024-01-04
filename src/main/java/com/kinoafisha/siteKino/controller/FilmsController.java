@@ -45,14 +45,7 @@ public class FilmsController {
     }
 
 
-    @PostMapping("/{filmId}/addComment")
-    public String addCommentToFilm(@RequestBody String message, Model model)
-    {
-        CommentsModel commentsModel = filmsService.addNewComment(message);
-        model.addAttribute("comment", commentsModel);
-        return "film_page";
 
-    }
 
 
 
