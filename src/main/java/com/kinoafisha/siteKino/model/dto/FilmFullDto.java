@@ -9,28 +9,28 @@ import java.util.List;
 @Data
 public class FilmFullDto {
 
-    String name; // название фильма
+    String name;
 
-    String description; // описание
+    String description;
 
-    int year; // год выхода
+    int year;
 
-    Date releaseDate; //полная дата выхода фильм
+    Date releaseDate;
 
-    String creator; //режиссер
+    String creator;
 
-    String time; // время сколько идет фильм
+    String time; // продолжительность фильма
 
-    String actors; //актеры
+    String actors;
 
-    String genre; // жанр
+    String genre;
 
-    String image; //картинка
+    String image;
     @Nullable
-    Integer rating; // рейтинг
+    Integer rating;
 
     @Nullable
-    Integer myRating; // Наш рейтинг
+    Integer myRating;
 
     List<CommentsShortDto> commentsShortDtos;
 }
