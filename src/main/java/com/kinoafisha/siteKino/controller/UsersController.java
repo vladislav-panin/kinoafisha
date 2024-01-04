@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Controller
-//@RequestMapping("users")
 @RequiredArgsConstructor
 public class UsersController {
 
@@ -62,24 +61,14 @@ public class UsersController {
         model.addAttribute("loginRequest", new UsersModel());
         return "login_page";
     }
-    //То что ниже сам написал
+
     @GetMapping("/logout")
     public String getLogoutPage(Model model){
         model.addAttribute("logoutRequest", new UsersModel());
         return "already_logged_in_error";
     }
-    /*
-    @GetMapping("/filmsAll")
-    public String getFilmsAllPage(Model model){
-        List<FilmsShortDto> filmsShortDtos = filmsService.getAllFilms();
-        model.addAttribute("films", filmsShortDtos);
-        return "all_films";
-    }
-*/
-  //  profile_other_user
 
 
-    //Есть гет метод для профиля другого чела
     @GetMapping("/profile/{userName}")
     public String getOtherUserProfilePage(Model model,@PathVariable String userName){
 
@@ -95,7 +84,6 @@ public class UsersController {
                 ratingModel.getRatingId();
                 Integer filmId = ratingModel.getFilmId();
                 FilmModel filmModel = filmRepository.findFilmModelByFilmId(filmId);
-                //Я хочу сразу сделать из этой модели короткое дто
                 FilmsShortDto oneShortFilm = filmsMapper.toFilmsShortDto(filmModel);
                 fsd.add(oneShortFilm);
 
@@ -127,7 +115,6 @@ public class UsersController {
                 ratingModel.getRatingId();
                 Integer filmId = ratingModel.getFilmId();
                 FilmModel filmModel = filmRepository.findFilmModelByFilmId(filmId);
-                //Я хочу сразу сделать из этой модели короткое дто
                 FilmsShortDto oneShortFilm = filmsMapper.toFilmsShortDto(filmModel);
                 fsd.add(oneShortFilm);
 
@@ -161,8 +148,6 @@ public class UsersController {
         String userFromDbPreferences = userModelFromDb.getPreferences();
         String userFromDbBirthDate = userModelFromDb.getBirthDate();
 
-
-
         if(usersModel.getLogin()=="")
         {
             usersModel.setLogin(userFromDbLogin);
@@ -180,8 +165,6 @@ public class UsersController {
         userModelFromDb.setPreferences(usersModel.getPreferences());
         userModelFromDb.setBirthDate(usersModel.getBirthDate());
         usersRepository.save(userModelFromDb);
-
-
 
         return "profile_update_success";
 
@@ -204,7 +187,7 @@ public class UsersController {
         registeredUser.setBirthDate("Не задана");
         registeredUser.setAuthentificated(0);
         usersRepository.save(registeredUser);
-        // return registeredUser == null ? "error_page" : "redirect/login"; //redirect/login
+
         if(registeredUser != null){
             return "login_page";
         }else{
@@ -213,30 +196,24 @@ public class UsersController {
     }
 
     @PostMapping("/addComment")
-    public String addCommentToFilm(@ModelAttribute CommentsModel commentsModel, Model model) //добавление коментария к фильму
+    public String addCommentToFilm(@ModelAttribute CommentsModel commentsModel, Model model)
     {
         System.out.println("comment request: " + commentsModel);
         UsersModel authenticated = usersRepository.findUsersModelByAuthentificated(1);
         String userName = authenticated.getLogin();
-       // String userImage = authenticated.getImage();
         commentsModel.setName(userName);
         commentsRepository.save(commentsModel);
 
-
-
-
         model.addAttribute("comment", commentsModel);
 
-
         FilmFullDto filmFullDto = filmsService.findFilmByNameDto(commentsModel.getFilmName());
-
 
         List<CommentsModel> commentsModelList = commentsRepository.findCommentsModelByFilmName(commentsModel.getFilmName());
         if(commentsModelList.size()==0)
         {
             String admComment = "Комментариев к фильму пока нет, будьте первым, кто оставит комментарий";
             model.addAttribute("admComment",admComment);
-        }else{
+        } else {
             List<CommentsShortDto> commentsShortDtoList = new ArrayList<>();
             for(CommentsModel one_comment: commentsModelList)
             {
@@ -248,7 +225,6 @@ public class UsersController {
 
         }
 
-        //рейтинг
         FilmModel filmModelForId = filmRepository.findFilmModelByName(commentsModel.getFilmName());
         Integer filmId = filmModelForId.getFilmId();
         List<RatingModel> ratingModelList = ratingRepository.findRatingModelsByFilmId(filmId);
@@ -266,7 +242,7 @@ public class UsersController {
             FilmModel filmModelForBd = filmRepository.findFilmModelByName(commentsModel.getFilmName());
             filmModelForBd.setRating(filmRating);
             filmRepository.save(filmModelForBd);
-        }else{
+        } else {
             filmFullDto.setRating(0);
         }
 
@@ -279,14 +255,8 @@ public class UsersController {
         }
         model.addAttribute("ratingScale", ratingScale);
 
-        // model.addAttribute("film", filmFullDto);
         return "film_page";
-
-
     }
-
-
-
 
     @PostMapping("/login")
     public String login(@ModelAttribute UsersModel usersModel, Model model)
@@ -295,13 +265,9 @@ public class UsersController {
             System.out.println("login request: " + usersModel);
             UsersModel authenticated = usersService.authenticate(usersModel.getLogin(), usersModel.getPassword());
 
-
             if (authenticated != null) {
-                //////////////////////////////////
                 if(authenticated.getAuthentificated() != 1) {
                     authenticated.setAuthentificated(1);
-                 //   authenticated.setPreferences("нет предпочтений");
-                //    authenticated.setBirthDate("не задана");
 
                     usersRepository.save(authenticated);
                     model.addAttribute("userLogin", authenticated.getLogin());
@@ -315,8 +281,6 @@ public class UsersController {
                     model.addAttribute("films", filmsShortDtos);
                     model.addAttribute("names",filmsNamesList);
 
-
-                    //////////////////////////////////////////////////////////////////////////
                     return "main_page";
                 }else {
                     return "already_logged_in_error";
@@ -326,65 +290,33 @@ public class UsersController {
             }
     }
 
-
-
     @PostMapping("/logout")
     public String logout(@ModelAttribute UsersModel usersModel, Model model)
     {
-
         System.out.println("logout request: " + usersModel);
         UsersModel authenticated = usersRepository.findUsersModelByAuthentificated(1);
 
-
         if (authenticated != null) {
-            //////////////////////////////////
             authenticated.setAuthentificated(0);
 
             usersRepository.save(authenticated);
-            ////////////////////////////////////
             model.addAttribute("userLogin", authenticated.getLogin());
             return "login_page";
-        }else{
+        } else {
             return "easy";
         }
     }
 
-
-
-
-    ////////////////////////////////////////////////////////////Отсюда идут фильмы
-
-    @GetMapping("/films_all")//Рабочий эндпоинт
-    public String getAll(Model model)// все фильмы
+    @GetMapping("/films_all")
+    public String getAll(Model model)
     {
         List<FilmsShortDto> filmsShortDtos = filmsService.getAllFilms();
         model.addAttribute("films", filmsShortDtos);
         return "main_page";
     }
 
-/*
-    @GetMapping("/films_all")
-    public String getAll(@ModelAttribute Model model)// все фильмы
-    {
-        List<FilmsShortDto> filmsShortDtos = filmsService.getAllFilms();
-        Integer size = filmsShortDtos.size();
-        for(int i = 0; i<size; i++)
-        {
-           FilmsShortDto oneFilm = filmsShortDtos.get(i);
-           Integer j = i;
-           String jString = j.toString();
-           String attributeName = "film" + jString;
-           model.addAttribute(attributeName, oneFilm);
-        }
-
-
-        return "all_films";
-    }
-*/
-
-
     @GetMapping("one_film/{filmId}")
-    public String getFilmByFilmId(@PathVariable Integer filmId, @ModelAttribute FilmModel filmModel, Model model){ // получение фильма по айди
+    public String getFilmByFilmId(@PathVariable Integer filmId, @ModelAttribute FilmModel filmModel, Model model){
 
         FilmFullDto filmFullDto = filmsService.findFilmById(filmId);
 
@@ -392,11 +324,8 @@ public class UsersController {
 
     }
 
-
-
-
     @GetMapping("/filmPage/{name}")
-    public String getFilmByFilmName(@ModelAttribute FilmModel filmModel,  Model model){// получение фильма по имени
+    public String getFilmByFilmName(@ModelAttribute FilmModel filmModel,  Model model){
         String name = filmModel.getName();
         FilmFullDto filmFullDto = filmsService.findFilmByNameDto(name);
 
@@ -424,7 +353,6 @@ public class UsersController {
         List<RatingModel> ratingModelList = ratingRepository.findRatingModelsByFilmId(filmId);
         Integer filmRating = 0;
         Integer filmRatingSum = 0;
-     //   if(ratingModelList != null) {
         if(ratingModelList.size() != 0) {
             for (RatingModel ratingModel : ratingModelList) {
                 filmRatingSum = filmRatingSum + ratingModel.getRating();
@@ -450,50 +378,8 @@ public class UsersController {
         }
         model.addAttribute("ratingScale", ratingScale);
 
-        // model.addAttribute("film", filmFullDto);
         return "film_page";
     }
-/*
-    @GetMapping("/filmPage/{name}")
-    public String getFilmByFilmName(@ModelAttribute FilmModel filmModel,  Model model){// получение фильма по имени
-        String name = filmModel.getName();
-        FilmFullDto filmFullDto = filmsService.findFilmByNameDto(name);
-        model.addAttribute("film", filmFullDto); // перенес
-
-        List<Integer> ratingScale = new ArrayList<>(); //Создаю свою шкалу рейтинга
-        for(int i=0; i<6; i++)
-        {
-            ratingScale.add(i);//заполняю шкалу рейтинга
-        }
-        model.addAttribute("ratingScale", ratingScale);//добавляю атрибут шкалы рейтинга
-        MyValue value = new MyValue();
-        value.setValueInt(0);
-        model.addAttribute("value", value);
-        //НЕОБХОДИМО СФОРМИРОВАТЬ АТРИБУТ В HTML, И ПЕРЕДАТЬ ЕГО СЮДА. ЭТОТ АТРИБУТ БУДЕТ ХРАНИТЬ ЦИФРУ РЕЙТИНГА
-
-        Integer myRating = number;// Я добавил в параметр рейтинг модель, не знаю, смог ли я здесь его получить или нет
-        FilmModel filmModelForId = filmsService.findFilmByNameModel(name);
-        Integer filmId = filmModelForId.getFilmId();
-        UsersModel usersModel = usersRepository.findUsersModelByAuthentificated(1);
-        Integer userId = usersModel.getUserId();
-        RatingModel ratingModel = ratingRepository.findRatingModelByFilmIdAndUserId(filmId, userId);
-        if(ratingModel != null){
-            RatingDto ratingDto = ratingService.giveRatingToFilm(ratingModel, myRating); //Если рейтинг уже существует, то нужно пойти и изменить оценку
-        }else{
-            //Если юзер еще не ставил оценку данному фильму, то надо ПОЛУЧИТЬ ОТ ФРОНТА оценку, затем установить ее
-            RatingModel newRatingModel = new RatingModel();
-            newRatingModel.setFilmId(filmId);
-            newRatingModel.setUserId(userId);
-            newRatingModel.setRating(myRating);
-            ratingRepository.save(newRatingModel);
-
-        }
-        Object tryRating = model.getAttribute("value");
-        int k = 0;
-        // model.addAttribute("film", filmFullDto);
-        return "film_page";
-    }
-*/
 
     @PostMapping("/filmPage/setRating")
     public String setRating() {
@@ -503,7 +389,7 @@ public class UsersController {
     }
 
     @GetMapping("/filmPage/0/{name}")
-    public String getFilmByFilmNameR0(@ModelAttribute FilmModel filmModel,  Model model){// получение фильма по имени
+    public String getFilmByFilmNameR0(@ModelAttribute FilmModel filmModel,  Model model){
         String name = filmModel.getName();
         FilmFullDto filmFullDto = filmsService.findFilmByNameDto(name);
 
@@ -521,9 +407,7 @@ public class UsersController {
             }
 
             model.addAttribute("comments",commentsShortDtoList);
-
         }
-
 
         FilmModel filmModelForId1 = filmRepository.findFilmModelByName(name);
         Integer filmId1 = filmModelForId1.getFilmId();
@@ -573,16 +457,14 @@ public class UsersController {
 
         }
 
-        // model.addAttribute("film", filmFullDto);
         return "film_page";
     }
 
 
     @GetMapping("/filmPage/1/{name}")
-    public String getFilmByFilmNameR1(@ModelAttribute FilmModel filmModel,  Model model){// получение фильма по имени
+    public String getFilmByFilmNameR1(@ModelAttribute FilmModel filmModel,  Model model){
         String name = filmModel.getName();
         FilmFullDto filmFullDto = filmsService.findFilmByNameDto(name);
-        //Занимаюсь выводом комментов
         List<CommentsModel> commentsModelList = commentsRepository.findCommentsModelByFilmName(name);
         if(commentsModelList.size()==0)
         {
@@ -597,10 +479,7 @@ public class UsersController {
             }
 
             model.addAttribute("comments",commentsShortDtoList);
-
         }
-
-
 
         FilmModel filmModelForId1 = filmRepository.findFilmModelByName(name);
         Integer filmId1 = filmModelForId1.getFilmId();
@@ -610,7 +489,6 @@ public class UsersController {
         if(ratingModelList.size() != 0) {
             for (RatingModel ratingModel : ratingModelList) {
                 filmRatingSum = filmRatingSum + ratingModel.getRating();
-
             }
             Integer ratingListSize = ratingModelList.size();
             filmRating = filmRatingSum/ratingListSize;
@@ -619,10 +497,9 @@ public class UsersController {
             FilmModel filmModelForBd = filmRepository.findFilmModelByName(name);
             filmModelForBd.setRating(filmRating);
             filmRepository.save(filmModelForBd);
-        }else{
+        } else {
             filmFullDto.setRating(0);
         }
-
 
         model.addAttribute("film", filmFullDto);
 
@@ -651,21 +528,19 @@ public class UsersController {
 
         }
 
-        // model.addAttribute("film", filmFullDto);
         return "film_page";
     }
 
     @GetMapping("/filmPage/2/{name}")
-    public String getFilmByFilmNameR2(@ModelAttribute FilmModel filmModel,  Model model){// получение фильма по имени
+    public String getFilmByFilmNameR2(@ModelAttribute FilmModel filmModel,  Model model){
         String name = filmModel.getName();
         FilmFullDto filmFullDto = filmsService.findFilmByNameDto(name);
-        //Занимаюсь выводом комментов
         List<CommentsModel> commentsModelList = commentsRepository.findCommentsModelByFilmName(name);
         if(commentsModelList.size()==0)
         {
             String admComment = "Комментариев к фильму пока нет, будьте первым, кто оставит комментарий";
             model.addAttribute("admComment",admComment);
-        }else{
+        } else {
             List<CommentsShortDto> commentsShortDtoList = new ArrayList<>();
             for(CommentsModel one_comment: commentsModelList)
             {
@@ -674,10 +549,7 @@ public class UsersController {
             }
 
             model.addAttribute("comments",commentsShortDtoList);
-
         }
-
-
 
         FilmModel filmModelForId1 = filmRepository.findFilmModelByName(name);
         Integer filmId1 = filmModelForId1.getFilmId();
@@ -696,7 +568,7 @@ public class UsersController {
             FilmModel filmModelForBd = filmRepository.findFilmModelByName(name);
             filmModelForBd.setRating(filmRating);
             filmRepository.save(filmModelForBd);
-        }else{
+        } else {
             filmFullDto.setRating(0);
         }
 
@@ -727,20 +599,18 @@ public class UsersController {
 
         }
 
-        // model.addAttribute("film", filmFullDto);
         return "film_page";
     }
     @GetMapping("/filmPage/3/{name}")
-    public String getFilmByFilmNameR3(@ModelAttribute FilmModel filmModel,  Model model){// получение фильма по имени
+    public String getFilmByFilmNameR3(@ModelAttribute FilmModel filmModel,  Model model){
         String name = filmModel.getName();
         FilmFullDto filmFullDto = filmsService.findFilmByNameDto(name);
-        //Занимаюсь выводом комментов
         List<CommentsModel> commentsModelList = commentsRepository.findCommentsModelByFilmName(name);
         if(commentsModelList.size()==0)
         {
             String admComment = "Комментариев к фильму пока нет, будьте первым, кто оставит комментарий";
             model.addAttribute("admComment",admComment);
-        }else{
+        } else {
             List<CommentsShortDto> commentsShortDtoList = new ArrayList<>();
             for(CommentsModel one_comment: commentsModelList)
             {
@@ -749,17 +619,13 @@ public class UsersController {
             }
 
             model.addAttribute("comments",commentsShortDtoList);
-
         }
-
-
 
         FilmModel filmModelForId1 = filmRepository.findFilmModelByName(name);
         Integer filmId1 = filmModelForId1.getFilmId();
         List<RatingModel> ratingModelList = ratingRepository.findRatingModelsByFilmId(filmId1);
         Integer filmRating = 0;
         Integer filmRatingSum = 0;
-       // if(ratingModelList != null) {
         if(ratingModelList.size() != 0) {
             for (RatingModel ratingModel : ratingModelList) {
                 filmRatingSum = filmRatingSum + ratingModel.getRating();
@@ -772,7 +638,7 @@ public class UsersController {
             FilmModel filmModelForBd = filmRepository.findFilmModelByName(name);
             filmModelForBd.setRating(filmRating);
             filmRepository.save(filmModelForBd);
-        }else{
+        } else {
             filmFullDto.setRating(0);
         }
 
@@ -793,24 +659,20 @@ public class UsersController {
         RatingModel ratingModel = ratingRepository.findRatingModelByFilmIdAndUserId(filmId, userId);
         if(ratingModel != null){
             RatingDto ratingDto = ratingService.giveRatingToFilm(ratingModel, myRating);
-        }else{
-
+        } else {
             RatingModel newRatingModel = new RatingModel();
             newRatingModel.setFilmId(filmId);
             newRatingModel.setUserId(userId);
             newRatingModel.setRating(myRating);
             ratingRepository.save(newRatingModel);
-
         }
 
-        // model.addAttribute("film", filmFullDto);
         return "film_page";
     }
     @GetMapping("/filmPage/4/{name}")
     public String getFilmByFilmNameR4(@ModelAttribute FilmModel filmModel,  Model model){
         String name = filmModel.getName();
         FilmFullDto filmFullDto = filmsService.findFilmByNameDto(name);
-        //Занимаюсь выводом комментов
         List<CommentsModel> commentsModelList = commentsRepository.findCommentsModelByFilmName(name);
         if(commentsModelList.size()==0)
         {
@@ -825,10 +687,7 @@ public class UsersController {
             }
 
             model.addAttribute("comments",commentsShortDtoList);
-
         }
-
-
 
         FilmModel filmModelForId1 = filmRepository.findFilmModelByName(name);
         Integer filmId1 = filmModelForId1.getFilmId();
@@ -838,7 +697,6 @@ public class UsersController {
         if(ratingModelList.size() != 0) {
             for (RatingModel ratingModel : ratingModelList) {
                 filmRatingSum = filmRatingSum + ratingModel.getRating();
-
             }
             Integer ratingListSize = ratingModelList.size();
             filmRating = filmRatingSum/ratingListSize;
@@ -848,7 +706,7 @@ public class UsersController {
             filmModelForBd.setRating(filmRating);
             filmRepository.save(filmModelForBd);
 
-        }else{
+        } else {
             filmFullDto.setRating(0);
         }
 
@@ -879,14 +737,12 @@ public class UsersController {
 
         }
 
-        // model.addAttribute("film", filmFullDto);
         return "film_page";
     }
     @GetMapping("/filmPage/5/{name}")
     public String getFilmByFilmNameR5(@ModelAttribute FilmModel filmModel,  Model model){
         String name = filmModel.getName();
         FilmFullDto filmFullDto = filmsService.findFilmByNameDto(name);
-        //Занимаюсь выводом комментов
         List<CommentsModel> commentsModelList = commentsRepository.findCommentsModelByFilmName(name);
         if(commentsModelList.size()==0)
         {
@@ -901,9 +757,7 @@ public class UsersController {
             }
 
             model.addAttribute("comments",commentsShortDtoList);
-
         }
-
 
         FilmModel filmModelForId1 = filmRepository.findFilmModelByName(name);
         Integer filmId1 = filmModelForId1.getFilmId();
@@ -913,7 +767,6 @@ public class UsersController {
         if(ratingModelList.size() != 0) {
             for (RatingModel ratingModel : ratingModelList) {
                 filmRatingSum = filmRatingSum + ratingModel.getRating();
-
             }
             Integer ratingListSize = ratingModelList.size();
             filmRating = filmRatingSum/ratingListSize;
@@ -923,7 +776,7 @@ public class UsersController {
             filmModelForBd.setRating(filmRating);
             filmRepository.save(filmModelForBd);
 
-        }else{
+        } else {
             filmFullDto.setRating(0);
         }
 
@@ -951,13 +804,8 @@ public class UsersController {
             newRatingModel.setUserId(userId);
             newRatingModel.setRating(myRating);
             ratingRepository.save(newRatingModel);
-
         }
 
-        // model.addAttribute("film", filmFullDto);
         return "film_page";
     }
-
-
-
 }
