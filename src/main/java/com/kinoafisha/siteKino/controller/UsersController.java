@@ -89,9 +89,10 @@ public class UsersController {
 
         UserProfileDto profile = usersService.getProfile(usersModel);
         List<RatingModel> ratingModelsWithHighRate = ratingRepository.findRatingModelsByRatingAndUserId(5,usersModel.getUserId());
+        List<FilmsShortDto> filmsShortDtoList;
         if(ratingModelsWithHighRate.size()!=0)
         {
-            List<FilmsShortDto> filmsShortDtoList = new ArrayList<>();
+            filmsShortDtoList = new ArrayList<>();
             for(RatingModel ratingModel : ratingModelsWithHighRate)
             {
                 ratingModel.getRatingId();
@@ -102,12 +103,11 @@ public class UsersController {
 
             }
 
-            model.addAttribute("films", filmsShortDtoList);
         }
         else {
-            List<FilmsShortDto> filmsShortDtoList = filmsService.getAllFilms();
-            model.addAttribute("films", filmsShortDtoList);
+            filmsShortDtoList = filmsService.getAllFilms();
         }
+        model.addAttribute("films", filmsShortDtoList);
         model.addAttribute("userLogin", usersModel.getLogin());
         model.addAttribute("profileRequest", profile);
 
