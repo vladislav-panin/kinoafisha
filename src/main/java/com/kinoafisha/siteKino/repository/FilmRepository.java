@@ -10,7 +10,6 @@ public interface FilmRepository extends JpaRepository<FilmModel, Integer> {
 
     List<FilmModel> findAll();
 
-
     FilmModel findFilmModelByFilmId(Integer id);
 
     FilmModel findFilmModelByName(String name);
