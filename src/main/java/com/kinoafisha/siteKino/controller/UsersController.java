@@ -2,7 +2,6 @@ package com.kinoafisha.siteKino.controller;
 
 import com.kinoafisha.siteKino.mapper.CommentsMapper;
 import com.kinoafisha.siteKino.mapper.FilmsMapper;
-import com.kinoafisha.siteKino.mapper.RatingMapper;
 import com.kinoafisha.siteKino.model.*;
 import com.kinoafisha.siteKino.model.dto.*;
 import com.kinoafisha.siteKino.repository.*;
@@ -36,7 +35,6 @@ public class UsersController {
 
     private final FilmsMapper filmsMapper;
 
-    private final RatingMapper ratingMapper;
 
     private final CommentsRepository commentsRepository;
 
