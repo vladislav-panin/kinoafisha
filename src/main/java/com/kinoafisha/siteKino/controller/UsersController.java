@@ -1,6 +1,5 @@
 package com.kinoafisha.siteKino.controller;
 
-import com.kinoafisha.siteKino.AuthTrueEntity;
 import com.kinoafisha.siteKino.mapper.CommentsMapper;
 import com.kinoafisha.siteKino.mapper.FilmsMapper;
 import com.kinoafisha.siteKino.mapper.RatingMapper;

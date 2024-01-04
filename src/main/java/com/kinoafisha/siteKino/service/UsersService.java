@@ -1,13 +1,10 @@
 package com.kinoafisha.siteKino.service;
 
-import com.kinoafisha.siteKino.AuthTrueEntity;
 import com.kinoafisha.siteKino.mapper.UsersMapper;
 import com.kinoafisha.siteKino.model.UsersModel;
 import com.kinoafisha.siteKino.model.dto.UserProfileDto;
-import com.kinoafisha.siteKino.repository.AuthTrueRepository;
 import com.kinoafisha.siteKino.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
 
 @Service
