@@ -25,7 +25,6 @@ public class UsersController {
 
     private final UsersRepository usersRepository;
 
-    private final RatingRepository ratingRepository;
 
     private final FilmsService filmsService;
 
@@ -77,7 +76,7 @@ public class UsersController {
     @GetMapping("/profile")
     public String getProfilePage(Model model){
 
-        UsersModel usersModel = usersRepository.findUsersModelByAuthentificated(1);
+        UsersModel usersModel = usersService.findAuthentificatedUser();
         formingUserProfileModel(model, usersModel);
         return "profile_page";
     }
@@ -85,12 +84,12 @@ public class UsersController {
     public Model formingUserProfileModel(Model model, UsersModel usersModel){
 
         UserProfileDto profile = usersService.getProfile(usersModel);
-        List<RatingModel> ratingModelsWithHighRate = ratingRepository.findRatingModelsByRatingAndUserId(5,usersModel.getUserId());
+        List<RatingModel> ratingModelsWithHigherRate = ratingService.getByRatingRatingModelListForUser(5,usersModel.getUserId());
         List<FilmsShortDto> filmsShortDtoList;
-        if(ratingModelsWithHighRate.size()!=0)
+        if(ratingModelsWithHigherRate.size()!=0)
         {
             filmsShortDtoList = new ArrayList<>();
-            for(RatingModel ratingModel : ratingModelsWithHighRate)
+            for(RatingModel ratingModel : ratingModelsWithHigherRate)
             {
                 ratingModel.getRatingId();
                 Integer filmId = ratingModel.getFilmId();
@@ -155,16 +154,16 @@ public class UsersController {
     @PostMapping("/addComment")
     public String addCommentToFilm(@ModelAttribute CommentsModel commentsModel, Model model)
     {
-        UsersModel user = usersRepository.findUsersModelByAuthentificated(1);
+        UsersModel user = usersService.findAuthentificatedUser();
         model.addAttribute("comment", commentsService.saveComment(commentsModel, user));
 
         FilmModel filmModel = filmRepository.findFilmModelByName(commentsModel.getFilmName());
-        RatingModel ratingModel = ratingRepository.findRatingModelByFilmIdAndUserId(filmModel.getFilmId(), user.getUserId());
+        RatingModel ratingModel = ratingService.getRatingModel(filmModel.getFilmId(), user.getUserId());
 
         formingModel(model,
                 commentsService.formingCommentsShortDtoListForFilm(commentsModel.getFilmName()),
                 formingFilmFullDto(commentsModel.getFilmName()),
-                formingRatingScale(),
+                ratingService.formingRatingScale(),
                 ratingModel.getRating());
 
         return "film_page";
@@ -249,8 +248,8 @@ public class UsersController {
         formingModel(model,
                      commentsService.formingCommentsShortDtoListForFilm(filmModel.getName()),
                      formingFilmFullDto(filmModel.getName()),
-                     formingRatingScale(),
-                     formingUserRatingToFilm(filmModel));
+                     ratingService.formingRatingScale(),
+                     ratingService.formingUserRatingToFilm(filmModel));
 
         return "film_page";
     }
@@ -261,7 +260,7 @@ public class UsersController {
         FilmModel filmModel = filmRepository.findFilmModelByName(filmName);
 
         Integer filmId = filmModel.getFilmId();
-        List<RatingModel> ratingModelList = ratingRepository.findRatingModelsByFilmId(filmId);
+        List<RatingModel> ratingModelList = ratingService.getRatingModelList(filmId);
 
         Integer filmRating;
         Integer filmRatingSum = 0;
@@ -281,25 +280,6 @@ public class UsersController {
             filmFullDto.setRating(0);
         }
         return filmFullDto;
-    }
-
-    public List<Integer> formingRatingScale()
-    {
-        List<Integer> ratingScale = new ArrayList<>();
-        for(int i=0; i<6; i++)
-        {
-            ratingScale.add(i);
-        }
-        return ratingScale;
-    }
-
-    public Integer formingUserRatingToFilm(FilmModel filmModel){
-
-        UsersModel usersModel = usersRepository.findUsersModelByAuthentificated(1);
-        Integer userId = usersModel.getUserId();
-        RatingModel ratingModel = ratingRepository.findRatingModelByFilmIdAndUserId(filmModel.getFilmId(), userId);
-
-        return ratingService.setRating(filmModel.getMyRating(),userId, filmModel.getFilmId(), ratingModel.getRatingId());
     }
 
     public Model formingModel(Model model,

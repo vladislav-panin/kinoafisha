@@ -88,4 +88,10 @@ public class UsersService {
             return null;
         }
     }
+
+    public UsersModel findAuthentificatedUser() {
+        return usersRepository.findUsersModelByAuthentificated(1);
+    }
+
+
 }
