@@ -1,14 +1,9 @@
 package com.kinoafisha.siteKino.service;
 
-
-import com.kinoafisha.siteKino.model.FilmModel;
 import com.kinoafisha.siteKino.model.RatingModel;
-import com.kinoafisha.siteKino.model.UsersModel;
 import com.kinoafisha.siteKino.repository.RatingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -40,10 +35,7 @@ public class RatingService {
 
     public boolean isRatingCorrect(Integer rating, Integer userId, RatingModel ratingModel){
 
-        if(ratingModel == null || userId == null || rating > 5 || rating < 0)
-            return false;
-
-        return true;
+        return ratingModel != null && userId != null && rating <= 5 && rating >= 0;
     }
 
     public RatingModel getRatingModel(Integer filmId, Integer userId) {

@@ -17,12 +17,6 @@ public class UsersController {
 
     private final FormingModelsForUsersService formingModelsForUsersService;
 
-
-    @GetMapping("/easy1")
-    public String simpleReq(){
-        return "easy";
-    }
-
     @GetMapping("/register")
     public String getRegisterPage(Model model){
         model.addAttribute("registerRequest", new UsersModel());
@@ -71,13 +65,6 @@ public class UsersController {
     {
         usersService.profileUpdate(usersModel);
         return "profile_update_success";
-    }
-
-
-    @GetMapping("tryReg")
-    public String tryRegister(){
-        usersService.registerVariant2("velolog1", "Gagatun_1234");
-        return "success";
     }
 
     @PostMapping("/register")

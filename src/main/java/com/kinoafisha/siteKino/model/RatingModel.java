@@ -22,5 +22,4 @@ public class RatingModel {
     @Nullable
     Integer rating;
 
-    //табличка, чтобы искать какие юзеры какие фильмы оценили
 }

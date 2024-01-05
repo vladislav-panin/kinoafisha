@@ -19,12 +19,6 @@ public class FilmsService {
     private final FilmsMapper filmsMapper;
 
 
-    public FilmFullDto getFilmFullDtoById(Integer filmId){
-        FilmModel filmModel = filmRepository.findFilmModelByFilmId(filmId);
-        return filmsMapper.toFilmFullDto(filmModel);
-
-    }
-
     public FilmFullDto getFilmFullDtoByName(String name){
         FilmModel filmModel = filmRepository.findFilmModelByName(name);
         return filmsMapper.toFilmFullDto(filmModel);

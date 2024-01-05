@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class UsersMapper {
 
-
     private final ModelMapper modelMapper;
 
     public UserProfileDto toUserProfileDto(UsersModel usersModel)

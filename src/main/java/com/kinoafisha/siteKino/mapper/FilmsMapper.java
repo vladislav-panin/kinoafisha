@@ -18,9 +18,6 @@ import java.util.Objects;
 public class FilmsMapper {
     private final ModelMapper modelMapper;
 
-
-
-
     public FilmFullDto toFilmFullDto(FilmModel filmModel) {
         List<CommentsModel> commentsModelList = filmModel.getComments();
         List<CommentsShortDto> commentsShortDtoList = new ArrayList<>();
@@ -29,8 +26,6 @@ public class FilmsMapper {
             commentsShortDtoList.add(oneShortDto);
         }
         FilmFullDto filmFullDto = modelMapper.map(filmModel, FilmFullDto.class);
-
-
 
         return Objects.isNull(filmModel) ? null : filmFullDto;
 

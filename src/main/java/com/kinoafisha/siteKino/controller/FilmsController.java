@@ -48,13 +48,6 @@ public class FilmsController {
         return "main_page";
     }
 
-    @PostMapping("/filmPage/setRating")
-    public String setRating() {
-
-        ratingService.setRating(2,1, 1, 3);
-        return "success";
-    }
-
     @GetMapping("/filmPage/{name}")
     public String getFilmByFilmName(@ModelAttribute FilmModel filmModel,  Model model){
 

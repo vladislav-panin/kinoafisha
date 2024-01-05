@@ -55,6 +55,7 @@ public class FormingModelsForUsersService {
         model.addAttribute("films", filmsService.getAllFilmsSortDto());
         model.addAttribute("filmsNames", filmsService.getAllFilmsNamesForMainPage());
         model.addAttribute("userLogin", usersModel.getLogin());
+
         return model;
     }
 }

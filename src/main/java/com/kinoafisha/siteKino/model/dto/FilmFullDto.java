@@ -2,7 +2,6 @@ package com.kinoafisha.siteKino.model.dto;
 
 import jakarta.annotation.Nullable;
 import lombok.Data;
-
 import java.util.Date;
 import java.util.List;
 

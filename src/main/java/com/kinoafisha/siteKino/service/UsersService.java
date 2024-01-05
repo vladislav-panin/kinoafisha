@@ -73,8 +73,7 @@ public class UsersService {
 
     public UsersModel authenticate(String login, String password) {
 
-        UsersModel user = usersRepository.findByLoginAndPassword(login, password);
-        return user;
+        return usersRepository.findByLoginAndPassword(login, password);
     }
 
     public UsersModel findAuthentificatedUser() {
@@ -87,20 +86,18 @@ public class UsersService {
         return usersRepository.findUsersModelByLogin(userName);
     }
 
-    public UsersModel logout() {
+    public void logout() {
         UsersModel authenticated = usersRepository.findUsersModelByAuthentificated(1);
 
         if (authenticated != null)
             authenticated.setAuthentificated(0);
-        return usersRepository.save(authenticated);
+        usersRepository.save(authenticated);
     }
 
-    public String loginUser(UsersModel usersModel) {
+    public void loginUser(UsersModel usersModel) {
 
             UsersModel usersModelInBd = usersRepository.findUsersModelByLogin(usersModel.getLogin());
             usersModelInBd.setAuthentificated(1);
             usersRepository.save(usersModelInBd);
-
-            return usersModelInBd.getLogin();
     }
 }
