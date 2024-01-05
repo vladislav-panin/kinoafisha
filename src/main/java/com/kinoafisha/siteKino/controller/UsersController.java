@@ -1,6 +1,5 @@
 package com.kinoafisha.siteKino.controller;
 
-import com.kinoafisha.siteKino.mapper.FilmsMapper;
 import com.kinoafisha.siteKino.model.*;
 import com.kinoafisha.siteKino.model.dto.*;
 import com.kinoafisha.siteKino.repository.*;
@@ -12,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,19 +23,11 @@ public class UsersController {
 
     private final UsersRepository usersRepository;
 
-
     private final FilmsService filmsService;
-
-    private final FilmRepository filmRepository;
 
     private final RatingService ratingService;
 
-    private final FilmsMapper filmsMapper;
-
     private final CommentsService commentsService;
-
-
-
 
 
     @GetMapping("/easy1")
@@ -93,12 +83,10 @@ public class UsersController {
             {
                 ratingModel.getRatingId();
                 Integer filmId = ratingModel.getFilmId();
-                FilmModel filmModel = filmRepository.findFilmModelByFilmId(filmId);
-                FilmsShortDto oneShortFilm = filmsMapper.toFilmsShortDto(filmModel);
+                FilmModel filmModel = filmsService.getFilmModelById(filmId);
+                FilmsShortDto oneShortFilm = filmsService.getFilmsShortDto(filmModel);
                 filmsShortDtoList.add(oneShortFilm);
-
             }
-
         }
         else {
             filmsShortDtoList = filmsService.getAllFilms();
@@ -157,12 +145,12 @@ public class UsersController {
         UsersModel user = usersService.findAuthentificatedUser();
         model.addAttribute("comment", commentsService.saveComment(commentsModel, user));
 
-        FilmModel filmModel = filmRepository.findFilmModelByName(commentsModel.getFilmName());
+        FilmModel filmModel = filmsService.getFilmModelByName(commentsModel.getFilmName());
         RatingModel ratingModel = ratingService.getRatingModel(filmModel.getFilmId(), user.getUserId());
 
-        formingModel(model,
+        filmsService.formingFilmPageModel(model,
                 commentsService.formingCommentsShortDtoListForFilm(commentsModel.getFilmName()),
-                formingFilmFullDto(commentsModel.getFilmName()),
+                filmsService.formingFilmFullDto(commentsModel.getFilmName()),
                 ratingService.formingRatingScale(),
                 ratingModel.getRating());
 
@@ -172,7 +160,6 @@ public class UsersController {
     @PostMapping("/login")
     public String login(@ModelAttribute UsersModel usersModel, Model model)
     {
-
             System.out.println("login request: " + usersModel);
             UsersModel authenticated = usersService.authenticate(usersModel.getLogin(), usersModel.getPassword());
 
@@ -229,7 +216,7 @@ public class UsersController {
     @GetMapping("one_film/{filmId}")
     public String getFilmByFilmId(@PathVariable Integer filmId, @ModelAttribute FilmModel filmModel, Model model){
 
-        FilmFullDto filmFullDto = filmsService.findFilmById(filmId);
+        FilmFullDto filmFullDto = filmsService.getFilmFullDtoById(filmId);
 
         return "film_page";
 
@@ -245,57 +232,14 @@ public class UsersController {
     @GetMapping("/filmPage/{name}")
     public String getFilmByFilmName(@ModelAttribute FilmModel filmModel,  Model model){
 
-        formingModel(model,
+        filmsService.formingFilmPageModel(model,
                      commentsService.formingCommentsShortDtoListForFilm(filmModel.getName()),
-                     formingFilmFullDto(filmModel.getName()),
+                     filmsService.formingFilmFullDto(filmModel.getName()),
                      ratingService.formingRatingScale(),
                      ratingService.formingUserRatingToFilm(filmModel));
 
         return "film_page";
     }
-
-    public FilmFullDto formingFilmFullDto(String filmName){
-
-        FilmFullDto filmFullDto = filmsService.findFilmByNameDto(filmName);
-        FilmModel filmModel = filmRepository.findFilmModelByName(filmName);
-
-        Integer filmId = filmModel.getFilmId();
-        List<RatingModel> ratingModelList = ratingService.getRatingModelList(filmId);
-
-        Integer filmRating;
-        Integer filmRatingSum = 0;
-        if(ratingModelList.size() != 0) {
-            for (RatingModel ratingModel : ratingModelList) {
-                filmRatingSum = filmRatingSum + ratingModel.getRating();
-            }
-            Integer ratingListSize = ratingModelList.size();
-            filmRating = filmRatingSum/ratingListSize;
-            filmFullDto.setRating(filmRating);
-
-            FilmModel filmModelForBd = filmRepository.findFilmModelByName(filmModel.getName());
-            filmModelForBd.setRating(filmRating);
-            filmRepository.save(filmModelForBd);
-
-        } else {
-            filmFullDto.setRating(0);
-        }
-        return filmFullDto;
-    }
-
-    public Model formingModel(Model model,
-                              List<CommentsShortDto> commentsShortDtoList,
-                              FilmFullDto filmFullDto,
-                              List<Integer> ratingScale,
-                              Integer userRating)
-    {
-        model.addAttribute("comments",commentsShortDtoList);
-        model.addAttribute("film", filmFullDto);
-        model.addAttribute("ratingScale", ratingScale);
-        model.addAttribute("userRating", userRating);
-
-        return model;
-    }
-
 }
 
 

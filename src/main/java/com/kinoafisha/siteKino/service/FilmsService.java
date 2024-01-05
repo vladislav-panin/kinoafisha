@@ -2,11 +2,15 @@ package com.kinoafisha.siteKino.service;
 
 import com.kinoafisha.siteKino.mapper.FilmsMapper;
 import com.kinoafisha.siteKino.model.FilmModel;
+import com.kinoafisha.siteKino.model.RatingModel;
+import com.kinoafisha.siteKino.model.dto.CommentsShortDto;
 import com.kinoafisha.siteKino.model.dto.FilmFullDto;
 import com.kinoafisha.siteKino.model.dto.FilmsShortDto;
 import com.kinoafisha.siteKino.repository.FilmRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,33 +22,82 @@ public class FilmsService {
 
     private final FilmsMapper filmsMapper;
 
+    private final RatingService ratingService;
 
-    public FilmFullDto findFilmById(Integer filmId){
+    public FilmFullDto getFilmFullDtoById(Integer filmId){
         FilmModel filmModel = filmRepository.findFilmModelByFilmId(filmId);
-        FilmFullDto filmDto = filmsMapper.toFilmFullDto(filmModel);
-        return filmDto;
+        return filmsMapper.toFilmFullDto(filmModel);
+
     }
 
 
-    public FilmFullDto findFilmByNameDto(String name){
+    public FilmFullDto getFilmFullDtoByName(String name){
         FilmModel filmModel = filmRepository.findFilmModelByName(name);
-        FilmFullDto filmDto = filmsMapper.toFilmFullDto(filmModel);
-        return filmDto;
+        return filmsMapper.toFilmFullDto(filmModel);
     }
 
-    public FilmModel findFilmByNameModel(String name){
-        FilmModel filmModel = filmRepository.findFilmModelByName(name);
-        return filmModel;
+    public FilmModel getFilmModelByName(String name){
+        return filmRepository.findFilmModelByName(name);
     }
 
     public List<FilmsShortDto> getAllFilms(){
-        List<FilmsShortDto> filmsShortDtos = new ArrayList<>();
+        List<FilmsShortDto> filmsShortDtoList = new ArrayList<>();
         List<FilmModel> filmModels = filmRepository.findAll();
         for(FilmModel oneModel : filmModels)
         {
             FilmsShortDto shortDto = filmsMapper.toFilmsShortDto(oneModel);
-            filmsShortDtos.add(shortDto);
+            filmsShortDtoList.add(shortDto);
         }
-        return filmsShortDtos;
+        return filmsShortDtoList;
+    }
+
+    public FilmModel getFilmModelById(Integer filmId){
+        return filmRepository.findFilmModelByFilmId(filmId);
+    }
+
+    public FilmFullDto formingFilmFullDto(String filmName){
+
+        FilmFullDto filmFullDto = getFilmFullDtoByName(filmName);
+        FilmModel filmModel = filmRepository.findFilmModelByName(filmName);
+
+        Integer filmId = filmModel.getFilmId();
+        List<RatingModel> ratingModelList = ratingService.getRatingModelList(filmId);
+
+        Integer filmRating;
+        Integer filmRatingSum = 0;
+        if(ratingModelList.size() != 0) {
+            for (RatingModel ratingModel : ratingModelList) {
+                filmRatingSum = filmRatingSum + ratingModel.getRating();
+            }
+            Integer ratingListSize = ratingModelList.size();
+            filmRating = filmRatingSum/ratingListSize;
+            filmFullDto.setRating(filmRating);
+
+            FilmModel filmModelForBd = filmRepository.findFilmModelByName(filmModel.getName());
+            filmModelForBd.setRating(filmRating);
+            filmRepository.save(filmModelForBd);
+
+        } else {
+            filmFullDto.setRating(0);
+        }
+        return filmFullDto;
+    }
+
+    public Model formingFilmPageModel(Model model,
+                                      List<CommentsShortDto> commentsShortDtoList,
+                                      FilmFullDto filmFullDto,
+                                      List<Integer> ratingScale,
+                                      Integer userRating)
+    {
+        model.addAttribute("comments",commentsShortDtoList);
+        model.addAttribute("film", filmFullDto);
+        model.addAttribute("ratingScale", ratingScale);
+        model.addAttribute("userRating", userRating);
+
+        return model;
+    }
+
+    public FilmsShortDto getFilmsShortDto(FilmModel filmModel){
+        return filmsMapper.toFilmsShortDto(filmModel);
     }
 }
