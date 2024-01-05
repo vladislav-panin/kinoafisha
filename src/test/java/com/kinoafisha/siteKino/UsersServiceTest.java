@@ -1,7 +1,5 @@
 package com.kinoafisha.siteKino;
 
-import com.kinoafisha.siteKino.model.FilmModel;
-import com.kinoafisha.siteKino.model.RatingModel;
 import com.kinoafisha.siteKino.model.UsersModel;
 import com.kinoafisha.siteKino.repository.UsersRepository;
 import com.kinoafisha.siteKino.service.UsersService;
@@ -13,8 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import java.util.Date;
 
 import static org.mockito.Mockito.*;
 
@@ -31,7 +27,7 @@ public class UsersServiceTest {
 
     //Класс хороших данных
     @Test
-    public void registerUser1_usersModelInBdEqualsZero_uniqueLogin_correctPassword(){
+    public void registerVariant2_usersModelInBdEqualsZero_uniqueLogin_correctPassword(){
         String login = "velolog2";
         String password = "Gagatun_1234";
         UsersModel usersModelInBd = new UsersModel();
@@ -39,7 +35,7 @@ public class UsersServiceTest {
         usersModelInBd.setPassword(password);
         doReturn(null).when(usersRepository).findByLogin(login);
 
-        String actual = usersService.registerUser1(login, password);
+        String actual = usersService.registerVariant2(login, password);
         verify(usersRepository,times(1)).save(usersModelInBd);
 
         Assertions.assertEquals("success", actual);
@@ -47,7 +43,7 @@ public class UsersServiceTest {
 
     //Класс плохих данных
     @Test
-    public void registerUser1_usersModelInBdEqualsZero_nullLogin_nullPassword(){
+    public void registerVariant2_usersModelInBdEqualsZero_nullLogin_nullPassword(){
         String login = null;
         String password = null;
         UsersModel usersModelInBd = new UsersModel();
@@ -55,7 +51,7 @@ public class UsersServiceTest {
         usersModelInBd.setPassword(password);
         doReturn(null).when(usersRepository).findByLogin(login);
 
-        String actual = usersService.registerUser1(login, password);
+        String actual = usersService.registerVariant2(login, password);
         verify(usersRepository,times(1)).save(usersModelInBd);
 
         Assertions.assertEquals("success", actual);
@@ -63,7 +59,7 @@ public class UsersServiceTest {
 
     //Класс плохих данных
     @Test
-    public void registerUser1_usersModelInBdEqualsZero_emptyLogin_emptyPassword(){
+    public void registerVariant2_usersModelInBdEqualsZero_emptyLogin_emptyPassword(){
         String login = "";
         String password = "";
         UsersModel usersModelInBd = new UsersModel();
@@ -71,7 +67,7 @@ public class UsersServiceTest {
         usersModelInBd.setPassword(password);
         doReturn(null).when(usersRepository).findByLogin(login);
 
-        String actual = usersService.registerUser1(login, password);
+        String actual = usersService.registerVariant2(login, password);
         verify(usersRepository,times(1)).save(usersModelInBd);
 
         Assertions.assertEquals("success", actual);
@@ -79,7 +75,7 @@ public class UsersServiceTest {
 
     //Класс хороших данных
     @Test
-    public void registerUser1_usersModelInBdEqualsZero_notUniqueLogin(){
+    public void registerVariant2_usersModelInBdEqualsZero_notUniqueLogin(){
         String login = "velolog";
         String password = "Gagatun_123";
         UsersModel usersModelInBd = new UsersModel();
@@ -87,7 +83,7 @@ public class UsersServiceTest {
         usersModelInBd.setPassword(password);
         doReturn(usersModelInBd).when(usersRepository).findByLogin(login);
 
-        String actual = usersService.registerUser1(login, password);
+        String actual = usersService.registerVariant2(login, password);
         verify(usersRepository,never()).save(usersModelInBd);
 
         Assertions.assertEquals("not success", actual);
@@ -95,7 +91,7 @@ public class UsersServiceTest {
 
     //Класс плохих данных
     @Test
-    public void registerUser1_usersModelInBdEqualsZero_uniqueLogin_emptyPassword(){
+    public void registerVariant2_usersModelInBdEqualsZero_uniqueLogin_emptyPassword(){
         String login = "velolog2";
         String password = "";
         UsersModel usersModelInBd = new UsersModel();
@@ -103,7 +99,7 @@ public class UsersServiceTest {
         usersModelInBd.setPassword(password);
         doReturn(null).when(usersRepository).findByLogin(login);
 
-        String actual = usersService.registerUser1(login, password);
+        String actual = usersService.registerVariant2(login, password);
         verify(usersRepository,times(1)).save(usersModelInBd);
 
         Assertions.assertEquals("success", actual);

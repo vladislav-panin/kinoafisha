@@ -7,8 +7,6 @@ import com.kinoafisha.siteKino.model.dto.CommentsShortDto;
 import com.kinoafisha.siteKino.repository.CommentsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -33,25 +31,11 @@ public class CommentsService {
         }
     }
 
-    public List<CommentsShortDto> formingCommentsShortDtoListForFilm(String filmName){
+    public List<CommentsModel> getAllCommentsToFilm(String filmName) {
+        return commentsRepository.findCommentsModelByFilmName(filmName);
+    }
 
-        List<CommentsModel> commentsModelList = commentsRepository.findCommentsModelByFilmName(filmName);
-        List<CommentsShortDto> commentsShortDtoList = new ArrayList<>();
-
-        if(commentsModelList.size()==0)
-        {
-            CommentsShortDto adminCommentShortDto = new CommentsShortDto();
-            adminCommentShortDto.setName("admin");
-            adminCommentShortDto.setMessage("Комментариев к фильму пока нет, будьте первым, кто оставит комментарий");
-            commentsShortDtoList.add(adminCommentShortDto);
-
-            return commentsShortDtoList;
-        }
-        for(CommentsModel one_comment: commentsModelList){
-            CommentsShortDto one_shortComment = commentsMapper.toCommentsShortDto(one_comment);
-            commentsShortDtoList.add(one_shortComment);
-        }
-
-        return commentsShortDtoList;
+    public CommentsShortDto toCommentsShortDto(CommentsModel commentsModel) {
+        return commentsMapper.toCommentsShortDto(commentsModel);
     }
 }

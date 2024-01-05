@@ -34,7 +34,7 @@ public class FilmsController {
     @GetMapping("/all")
     public String getAll(Model model)
     {
-        List<FilmsShortDto> filmsShortDtos = filmsService.getAllFilms();
+        List<FilmsShortDto> filmsShortDtos = filmsService.getAllFilmsSortDto();
         model.addAttribute("allFilms", filmsShortDtos);
         return "all_films";
     }

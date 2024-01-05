@@ -23,7 +23,9 @@ public class UsersController {
 
     private final CommentsService commentsService;
 
-    private final FormingModelService formingModelService;
+    private final FormingModelsForFilmsService formingModelsForFilmsService;
+
+    private final FormingModelsForUsersService formingModelsForUsersService;
 
 
     @GetMapping("/easy1")
@@ -54,7 +56,7 @@ public class UsersController {
     public String getOtherUserProfilePage(Model model,@PathVariable String userName){
 
         UsersModel userModel = usersService.getUserModel(userName);
-        usersService.formingUserProfileModel(model, userModel);
+        formingModelsForUsersService.formingUserProfileModel(model, userModel);
         return "profile_other_user";
     }
 
@@ -63,7 +65,7 @@ public class UsersController {
     public String getProfilePage(Model model){
 
         UsersModel usersModel = usersService.findAuthentificatedUser();
-        usersService.formingUserProfileModel(model, usersModel);
+        formingModelsForUsersService.formingUserProfileModel(model, usersModel);
         return "profile_page";
     }
 
@@ -109,10 +111,10 @@ public class UsersController {
         FilmModel filmModel = filmsService.getFilmModelByName(commentsModel.getFilmName());
         RatingModel ratingModel = ratingService.getRatingModel(filmModel.getFilmId(), user.getUserId());
 
-        filmsService.formingFilmPageModel(model,
-                commentsService.formingCommentsShortDtoListForFilm(commentsModel.getFilmName()),
-                filmsService.formingFilmFullDto(commentsModel.getFilmName()),
-                ratingService.formingRatingScale(),
+        formingModelsForFilmsService.formingFilmPageModel(model,
+                formingModelsForFilmsService.formingCommentsShortDtoListForFilm(commentsModel.getFilmName()),
+                formingModelsForFilmsService.formingFilmFullDto(commentsModel.getFilmName()),
+                formingModelsForFilmsService.formingRatingScale(),
                 ratingModel.getRating());
 
         return "film_page";
@@ -123,7 +125,7 @@ public class UsersController {
     {
         UsersModel authenticated = usersService.authenticate(usersModel.getLogin(), usersModel.getPassword());
         if (authenticated != null) {
-            usersService.formingLoginModel(model, usersModel);
+            formingModelsForUsersService.formingLoginModel(model, usersModel);
             return "main_page";
         }else {
             return "auth_error_page"; //
@@ -134,7 +136,7 @@ public class UsersController {
     public String logout(@ModelAttribute UsersModel usersModel, Model model)
     {
         usersService.logout();
-        usersService.formingLogoutModel(usersModel, model);
+        formingModelsForUsersService.formingLogoutModel(usersModel, model);
 
         return "login_page";
     }
@@ -166,11 +168,12 @@ public class UsersController {
     @GetMapping("/filmPage/{name}")
     public String getFilmByFilmName(@ModelAttribute FilmModel filmModel,  Model model){
 
-        filmsService.formingFilmPageModel(model,
-                     commentsService.formingCommentsShortDtoListForFilm(filmModel.getName()),
-                     filmsService.formingFilmFullDto(filmModel.getName()),
-                     ratingService.formingRatingScale(),
-                     formingModelService.formingUserRatingToFilmModel(filmModel));
+        formingModelsForFilmsService.formingFilmPageModel(
+                     model,
+                     formingModelsForFilmsService.formingCommentsShortDtoListForFilm(filmModel.getName()),
+                     formingModelsForFilmsService.formingFilmFullDto(filmModel.getName()),
+                     formingModelsForFilmsService.formingRatingScale(),
+                     formingModelsForFilmsService.formingUserRatingToFilmModel(filmModel));
 
         return "film_page";
     }

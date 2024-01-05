@@ -16,7 +16,6 @@ import java.util.List;
 public class RatingService {
     private final RatingRepository ratingRepository;
 
-    private final UsersService usersService;
 
     public Integer setRating(Integer rating, Integer userId, Integer filmId, Integer ratingId) {
 
@@ -45,25 +44,6 @@ public class RatingService {
             return false;
 
         return true;
-    }
-
-    public List<Integer> formingRatingScale()
-    {
-        List<Integer> ratingScale = new ArrayList<>();
-        for(int i=0; i<6; i++)
-        {
-            ratingScale.add(i);
-        }
-        return ratingScale;
-    }
-
-    public Integer formingUserRatingToFilm(FilmModel filmModel){
-
-        UsersModel usersModel = usersService.findAuthentificatedUser();
-        Integer userId = usersModel.getUserId();
-        RatingModel ratingModel = ratingRepository.findRatingModelByFilmIdAndUserId(filmModel.getFilmId(), userId);
-
-        return setRating(filmModel.getMyRating(),userId, filmModel.getFilmId(), ratingModel.getRatingId());
     }
 
     public RatingModel getRatingModel(Integer filmId, Integer userId) {
