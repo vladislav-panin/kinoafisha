@@ -40,7 +40,7 @@ public class FilmsService {
         return filmRepository.findFilmModelByName(name);
     }
 
-    public List<FilmsShortDto> getAllFilms(){
+    public List<FilmsShortDto> getAllFilmsSortDto(){
         List<FilmsShortDto> filmsShortDtoList = new ArrayList<>();
         List<FilmModel> filmModels = filmRepository.findAll();
         for(FilmModel oneModel : filmModels)
@@ -99,5 +99,17 @@ public class FilmsService {
 
     public FilmsShortDto getFilmsShortDto(FilmModel filmModel){
         return filmsMapper.toFilmsShortDto(filmModel);
+    }
+
+    public List<String> getAllFilmsNamesForMainPage() {
+        List<FilmsShortDto> filmsShortDtoList = getAllFilmsSortDto();
+        List<String> filmsNamesList = new ArrayList<>();
+        for (FilmsShortDto filmsShortDto : filmsShortDtoList) {
+            String filmName = filmsShortDto.getName();
+            filmsNamesList.add(filmName);
+        }
+        return filmsNamesList;
+        //  model.addAttribute("films", filmsShortDtoList);
+        //  model.addAttribute("names",filmsNamesList);
     }
 }

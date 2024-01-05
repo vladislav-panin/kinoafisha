@@ -2,16 +2,12 @@ package com.kinoafisha.siteKino.controller;
 
 import com.kinoafisha.siteKino.model.*;
 import com.kinoafisha.siteKino.model.dto.*;
-import com.kinoafisha.siteKino.repository.*;
-import com.kinoafisha.siteKino.service.CommentsService;
-import com.kinoafisha.siteKino.service.FilmsService;
-import com.kinoafisha.siteKino.service.RatingService;
-import com.kinoafisha.siteKino.service.UsersService;
+import com.kinoafisha.siteKino.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import java.util.ArrayList;
+
 import java.util.List;
 
 @Controller
@@ -21,13 +17,13 @@ public class UsersController {
 
     private final UsersService usersService;
 
-    private final UsersRepository usersRepository;
-
     private final FilmsService filmsService;
 
     private final RatingService ratingService;
 
     private final CommentsService commentsService;
+
+    private final FormingModelService formingModelService;
 
 
     @GetMapping("/easy1")
@@ -57,8 +53,8 @@ public class UsersController {
     @GetMapping("/profile/{userName}")
     public String getOtherUserProfilePage(Model model,@PathVariable String userName){
 
-        UsersModel usersModel = usersRepository.findUsersModelByLogin(userName);
-        formingUserProfileModel(model, usersModel);
+        UsersModel userModel = usersService.getUserModel(userName);
+        usersService.formingUserProfileModel(model, userModel);
         return "profile_other_user";
     }
 
@@ -67,38 +63,9 @@ public class UsersController {
     public String getProfilePage(Model model){
 
         UsersModel usersModel = usersService.findAuthentificatedUser();
-        formingUserProfileModel(model, usersModel);
+        usersService.formingUserProfileModel(model, usersModel);
         return "profile_page";
     }
-
-    public Model formingUserProfileModel(Model model, UsersModel usersModel){
-
-        UserProfileDto profile = usersService.getProfile(usersModel);
-        List<RatingModel> ratingModelsWithHigherRate = ratingService.getByRatingRatingModelListForUser(5,usersModel.getUserId());
-        List<FilmsShortDto> filmsShortDtoList;
-        if(ratingModelsWithHigherRate.size()!=0)
-        {
-            filmsShortDtoList = new ArrayList<>();
-            for(RatingModel ratingModel : ratingModelsWithHigherRate)
-            {
-                ratingModel.getRatingId();
-                Integer filmId = ratingModel.getFilmId();
-                FilmModel filmModel = filmsService.getFilmModelById(filmId);
-                FilmsShortDto oneShortFilm = filmsService.getFilmsShortDto(filmModel);
-                filmsShortDtoList.add(oneShortFilm);
-            }
-        }
-        else {
-            filmsShortDtoList = filmsService.getAllFilms();
-        }
-        model.addAttribute("films", filmsShortDtoList);
-        model.addAttribute("userLogin", usersModel.getLogin());
-        model.addAttribute("profileRequest", profile);
-
-        return model;
-    }
-
-
 
     @GetMapping("/updateProfileGet")
     public String getUpdatePage(Model model){
@@ -117,20 +84,14 @@ public class UsersController {
 
     @GetMapping("tryReg")
     public String tryRegister(){
-        usersService.registerUser1("velolog1", "Gagatun_1234");
+        usersService.registerVariant2("velolog1", "Gagatun_1234");
         return "success";
     }
 
     @PostMapping("/register")
     public String register(@ModelAttribute UsersModel usersModel)
     {
-        System.out.println("register request: " + usersModel);
-        String isRegisterSucceed = usersService.registerUser1(usersModel.getLogin(), usersModel.getPassword());
-        UsersModel registeredUser =  usersService.registerUser(usersModel.getLogin(), usersModel.getPassword());
-        registeredUser.setPreferences("Нет предпочтений");
-        registeredUser.setBirthDate("Не задана");
-        registeredUser.setAuthentificated(0);
-        usersRepository.save(registeredUser);
+        UsersModel registeredUser =  usersService.registerVariant1(usersModel.getLogin(), usersModel.getPassword());
 
         if(registeredUser != null){
             return "login_page";
@@ -160,55 +121,28 @@ public class UsersController {
     @PostMapping("/login")
     public String login(@ModelAttribute UsersModel usersModel, Model model)
     {
-            System.out.println("login request: " + usersModel);
-            UsersModel authenticated = usersService.authenticate(usersModel.getLogin(), usersModel.getPassword());
-
-            if (authenticated != null) {
-                if(authenticated.getAuthentificated() != 1) {
-                    authenticated.setAuthentificated(1);
-
-                    usersRepository.save(authenticated);
-                    model.addAttribute("userLogin", authenticated.getLogin());
-                    List<FilmsShortDto> filmsShortDtos = filmsService.getAllFilms();
-                    List<String> filmsNamesList = new ArrayList<>();
-                    for(FilmsShortDto filmsShortDto : filmsShortDtos)
-                    {
-                        String filmName = filmsShortDto.getName();
-                        filmsNamesList.add(filmName);
-                    }
-                    model.addAttribute("films", filmsShortDtos);
-                    model.addAttribute("names",filmsNamesList);
-
-                    return "main_page";
-                }else {
-                    return "already_logged_in_error";
-                }
-            } else {
-                return "auth_error_page"; //
+        UsersModel authenticated = usersService.authenticate(usersModel.getLogin(), usersModel.getPassword());
+        if (authenticated != null) {
+            usersService.formingLoginModel(model, usersModel);
+            return "main_page";
+        }else {
+            return "auth_error_page"; //
             }
     }
 
     @PostMapping("/logout")
     public String logout(@ModelAttribute UsersModel usersModel, Model model)
     {
-        System.out.println("logout request: " + usersModel);
-        UsersModel authenticated = usersRepository.findUsersModelByAuthentificated(1);
+        usersService.logout();
+        usersService.formingLogoutModel(usersModel, model);
 
-        if (authenticated != null) {
-            authenticated.setAuthentificated(0);
-
-            usersRepository.save(authenticated);
-            model.addAttribute("userLogin", authenticated.getLogin());
-            return "login_page";
-        } else {
-            return "easy";
-        }
+        return "login_page";
     }
 
     @GetMapping("/films_all")
     public String getAll(Model model)
     {
-        List<FilmsShortDto> filmsShortDtos = filmsService.getAllFilms();
+        List<FilmsShortDto> filmsShortDtos = filmsService.getAllFilmsSortDto();
         model.addAttribute("films", filmsShortDtos);
         return "main_page";
     }
@@ -236,7 +170,7 @@ public class UsersController {
                      commentsService.formingCommentsShortDtoListForFilm(filmModel.getName()),
                      filmsService.formingFilmFullDto(filmModel.getName()),
                      ratingService.formingRatingScale(),
-                     ratingService.formingUserRatingToFilm(filmModel));
+                     formingModelService.formingUserRatingToFilmModel(filmModel));
 
         return "film_page";
     }
