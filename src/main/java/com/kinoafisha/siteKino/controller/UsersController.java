@@ -1,10 +1,10 @@
 package com.kinoafisha.siteKino.controller;
 
-import com.kinoafisha.siteKino.mapper.CommentsMapper;
 import com.kinoafisha.siteKino.mapper.FilmsMapper;
 import com.kinoafisha.siteKino.model.*;
 import com.kinoafisha.siteKino.model.dto.*;
 import com.kinoafisha.siteKino.repository.*;
+import com.kinoafisha.siteKino.service.CommentsService;
 import com.kinoafisha.siteKino.service.FilmsService;
 import com.kinoafisha.siteKino.service.RatingService;
 import com.kinoafisha.siteKino.service.UsersService;
@@ -35,10 +35,9 @@ public class UsersController {
 
     private final FilmsMapper filmsMapper;
 
+    private final CommentsService commentsService;
 
-    private final CommentsRepository commentsRepository;
 
-    private final CommentsMapper commentsMapper;
 
 
 
@@ -157,13 +156,13 @@ public class UsersController {
     public String addCommentToFilm(@ModelAttribute CommentsModel commentsModel, Model model)
     {
         UsersModel user = usersRepository.findUsersModelByAuthentificated(1);
-        model.addAttribute("comment", filmsService.addNewComment(commentsModel, user));
+        model.addAttribute("comment", commentsService.saveComment(commentsModel, user));
 
         FilmModel filmModel = filmRepository.findFilmModelByName(commentsModel.getFilmName());
         RatingModel ratingModel = ratingRepository.findRatingModelByFilmIdAndUserId(filmModel.getFilmId(), user.getUserId());
 
         formingModel(model,
-                formingCommentsShortDtoListForFilm(commentsModel.getFilmName()),
+                commentsService.formingCommentsShortDtoListForFilm(commentsModel.getFilmName()),
                 formingFilmFullDto(commentsModel.getFilmName()),
                 formingRatingScale(),
                 ratingModel.getRating());
@@ -248,34 +247,12 @@ public class UsersController {
     public String getFilmByFilmName(@ModelAttribute FilmModel filmModel,  Model model){
 
         formingModel(model,
-                     formingCommentsShortDtoListForFilm(filmModel.getName()),
+                     commentsService.formingCommentsShortDtoListForFilm(filmModel.getName()),
                      formingFilmFullDto(filmModel.getName()),
                      formingRatingScale(),
                      formingUserRatingToFilm(filmModel));
 
         return "film_page";
-    }
-
-   public List<CommentsShortDto> formingCommentsShortDtoListForFilm(String filmName){
-
-        List<CommentsModel> commentsModelList = commentsRepository.findCommentsModelByFilmName(filmName);
-        List<CommentsShortDto> commentsShortDtoList = new ArrayList<>();
-
-        if(commentsModelList.size()==0)
-        {
-            CommentsShortDto adminCommentShortDto = new CommentsShortDto();
-            adminCommentShortDto.setName("admin");
-            adminCommentShortDto.setMessage("Комментариев к фильму пока нет, будьте первым, кто оставит комментарий");
-            commentsShortDtoList.add(adminCommentShortDto);
-
-            return commentsShortDtoList;
-        }
-        for(CommentsModel one_comment: commentsModelList){
-                CommentsShortDto one_shortComment = commentsMapper.toCommentsShortDto(one_comment);
-                commentsShortDtoList.add(one_shortComment);
-        }
-
-        return commentsShortDtoList;
     }
 
     public FilmFullDto formingFilmFullDto(String filmName){
