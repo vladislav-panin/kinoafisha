@@ -1,14 +1,12 @@
 package com.kinoafisha.siteKino.controller;
 
 import com.kinoafisha.siteKino.model.*;
-import com.kinoafisha.siteKino.model.dto.*;
 import com.kinoafisha.siteKino.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -16,14 +14,6 @@ public class UsersController {
 
 
     private final UsersService usersService;
-
-    private final FilmsService filmsService;
-
-    private final RatingService ratingService;
-
-    private final CommentsService commentsService;
-
-    private final FormingModelsForFilmsService formingModelsForFilmsService;
 
     private final FormingModelsForUsersService formingModelsForUsersService;
 
@@ -102,24 +92,6 @@ public class UsersController {
         }
     }
 
-    @PostMapping("/addComment")
-    public String addCommentToFilm(@ModelAttribute CommentsModel commentsModel, Model model)
-    {
-        UsersModel user = usersService.findAuthentificatedUser();
-        model.addAttribute("comment", commentsService.saveComment(commentsModel, user));
-
-        FilmModel filmModel = filmsService.getFilmModelByName(commentsModel.getFilmName());
-        RatingModel ratingModel = ratingService.getRatingModel(filmModel.getFilmId(), user.getUserId());
-
-        formingModelsForFilmsService.formingFilmPageModel(model,
-                formingModelsForFilmsService.formingCommentsShortDtoListForFilm(commentsModel.getFilmName()),
-                formingModelsForFilmsService.formingFilmFullDto(commentsModel.getFilmName()),
-                formingModelsForFilmsService.formingRatingScale(),
-                ratingModel.getRating());
-
-        return "film_page";
-    }
-
     @PostMapping("/login")
     public String login(@ModelAttribute UsersModel usersModel, Model model)
     {
@@ -141,42 +113,7 @@ public class UsersController {
         return "login_page";
     }
 
-    @GetMapping("/films_all")
-    public String getAll(Model model)
-    {
-        List<FilmsShortDto> filmsShortDtos = filmsService.getAllFilmsSortDto();
-        model.addAttribute("films", filmsShortDtos);
-        return "main_page";
-    }
 
-    @GetMapping("one_film/{filmId}")
-    public String getFilmByFilmId(@PathVariable Integer filmId, @ModelAttribute FilmModel filmModel, Model model){
-
-        FilmFullDto filmFullDto = filmsService.getFilmFullDtoById(filmId);
-
-        return "film_page";
-
-    }
-
-    @PostMapping("/filmPage/setRating")
-    public String setRating() {
-
-        ratingService.setRating(2,1, 1, 3);
-        return "success";
-    }
-
-    @GetMapping("/filmPage/{name}")
-    public String getFilmByFilmName(@ModelAttribute FilmModel filmModel,  Model model){
-
-        formingModelsForFilmsService.formingFilmPageModel(
-                     model,
-                     formingModelsForFilmsService.formingCommentsShortDtoListForFilm(filmModel.getName()),
-                     formingModelsForFilmsService.formingFilmFullDto(filmModel.getName()),
-                     formingModelsForFilmsService.formingRatingScale(),
-                     formingModelsForFilmsService.formingUserRatingToFilmModel(filmModel));
-
-        return "film_page";
-    }
 }
 
 
